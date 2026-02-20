@@ -44,7 +44,7 @@ public class FoodManager {
 			var state = world.getBlockState(pos);
 			var shape = state.getCollisionShape(world, pos);
 			if(shape.getBoundingBoxes().size() == 1){
-				var box = shape.getBoundingBoxes().get(0);
+				var box = shape.getBoundingBoxes().getFirst();
 				if(box.minX == 0.0 && box.minZ == 0.0 && box.maxX == 1.0 && box.maxZ == 1.0){
 					if(world.getBlockState(pos.up()).isAir()){
 						return Stream.of(Vec3d.ofCenter(pos, box.maxY));
@@ -86,7 +86,7 @@ public class FoodManager {
 			var pos = snake.getHeadPos();
 
 			if (entity.getCenter().squaredDistanceTo(pos) < minSquaredDistance) {
-				positions.add(entity.getPos());
+				positions.add(entity.getEntityPos());
 				entity.remove(Entity.RemovalReason.DISCARDED);
 				snake.grow();
 

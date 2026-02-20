@@ -46,7 +46,7 @@ public class SnakePartEntity extends SheepEntity {
 	}
 
 	public Vec3d getCenter() {
-		return getPos().add(0, getHeight() / 2.0, 0);
+		return getEntityPos().add(0, getHeight() / 2.0, 0);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class SnakePartEntity extends SheepEntity {
 	}
 
 	@Override
-	protected boolean shouldDropLoot() {
+	protected boolean shouldDropLoot(ServerWorld world) {
 		return false;
 	}
 

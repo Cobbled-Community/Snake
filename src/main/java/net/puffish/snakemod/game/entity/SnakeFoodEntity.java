@@ -34,7 +34,7 @@ public class SnakeFoodEntity extends SlimeEntity {
 	}
 
 	public Vec3d getCenter() {
-		return getPos().add(0, getHeight(), 0);
+		return getEntityPos().add(0, getHeight(), 0);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class SnakeFoodEntity extends SlimeEntity {
 	}
 
 	@Override
-	protected boolean shouldDropLoot() {
+	protected boolean shouldDropLoot(ServerWorld world) {
 		return false;
 	}
 
