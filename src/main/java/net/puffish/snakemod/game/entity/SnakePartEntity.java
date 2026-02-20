@@ -1,52 +1,53 @@
 package net.puffish.snakemod.game.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
-public class SnakePartEntity extends SheepEntity {
+public class SnakePartEntity extends Sheep {
 	public static final double RADIUS = 0.55;
 
-	protected SnakePartEntity(World world) {
+	protected SnakePartEntity(Level world) {
 		super(EntityType.SHEEP, world);
 	}
 
-	public static SnakePartEntity create(World world){
+	public static SnakePartEntity create(Level world){
 		var entity = new SnakePartEntity(world);
 		entity.init();
 		return entity;
 	}
 
 	protected void init(){
-		this.goalSelector.getGoals().clear();
+		this.goalSelector.getAvailableGoals().clear();
 		this.setInvulnerable(true);
-		this.setPersistent();
+		this.setPersistenceRequired();
 	}
 
 	public void updateSimpleMovement(){
-		this.move(MovementType.SELF, this.getVelocity());
+		this.move(MoverType.SELF, this.getDeltaMovement());
 
-		Vec3d vel = this.getVelocity();
+		Vec3 vel = this.getDeltaMovement();
 
 		double velY = vel.y;
-		if (this.horizontalCollision && this.isClimbing()) {
+		if (this.horizontalCollision && this.onClimbable()) {
 			velY = 0.2;
 		}
 		velY -= 0.16;
 
-		this.setVelocity(vel.x, velY, vel.z);
+		this.setDeltaMovement(vel.x, velY, vel.z);
 
-		this.velocityDirty = true;
+		this.needsSync = true;
 	}
 
-	public Vec3d getCenter() {
-		return getEntityPos().add(0, getHeight() / 2.0, 0);
+	public Vec3 getCenter() {
+		return position().add(0, getBbHeight() / 2.0, 0);
 	}
 
 	@Override
@@ -65,12 +66,12 @@ public class SnakePartEntity extends SheepEntity {
 	}
 
 	@Override
-	protected boolean shouldDropLoot(ServerWorld world) {
+	protected boolean shouldDropLoot(@NonNull ServerLevel world) {
 		return false;
 	}
 
 	@Override
-	protected void dropExperience(ServerWorld world, @Nullable Entity attacker) {
+	protected void dropExperience(@NonNull ServerLevel world, @Nullable Entity attacker) {
 
 	}
 }

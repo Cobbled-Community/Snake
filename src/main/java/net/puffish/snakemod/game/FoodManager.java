@@ -1,11 +1,11 @@
 package net.puffish.snakemod.game;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import net.puffish.snakemod.game.entity.SnakeFoodEntity;
 import net.puffish.snakemod.game.entity.SnakePartEntity;
 import net.puffish.snakemod.game.map.SnakeMap;
@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class FoodManager {
-	private final ServerWorld world;
-	private final List<Vec3d> positions;
+	private final ServerLevel world;
+	private final List<Vec3> positions;
 	private final int minCount;
 	private final Random random;
 	private final List<SnakeFoodEntity> entities;
 
-	private FoodManager(ServerWorld world, List<Vec3d> positions, int minCount, Random random) {
+	private FoodManager(ServerLevel world, List<Vec3> positions, int minCount, Random random) {
 		this.world = world;
 		this.positions = positions;
 		this.minCount = minCount;
@@ -31,23 +31,23 @@ public class FoodManager {
 		this.entities = new ArrayList<>();
 	}
 
-	public static FoodManager create(ServerWorld world, SnakeMap map, Random random, float density) {
+	public static FoodManager create(ServerLevel world, SnakeMap map, Random random, float density) {
 		var regions = map.getFoodSpawns();
 
 		var positions = regions.stream().flatMap(region -> {
 			var bounds = region.getBounds();
 			return StreamSupport.stream(new BlockBounds(
-					bounds.min().down(),
+					bounds.min().below(),
 					bounds.max()
 			).spliterator(), false);
-		}).map(BlockPos::toImmutable).distinct().flatMap(pos -> {
+		}).map(BlockPos::immutable).distinct().flatMap(pos -> {
 			var state = world.getBlockState(pos);
 			var shape = state.getCollisionShape(world, pos);
-			if(shape.getBoundingBoxes().size() == 1){
-				var box = shape.getBoundingBoxes().getFirst();
+			if(shape.toAabbs().size() == 1){
+				var box = shape.toAabbs().getFirst();
 				if(box.minX == 0.0 && box.minZ == 0.0 && box.maxX == 1.0 && box.maxZ == 1.0){
-					if(world.getBlockState(pos.up()).isAir()){
-						return Stream.of(Vec3d.ofCenter(pos, box.maxY));
+					if(world.getBlockState(pos.above()).isAir()){
+						return Stream.of(Vec3.upFromBottomCenterOf(pos, box.maxY));
 					}
 				}
 			}
@@ -85,12 +85,12 @@ public class FoodManager {
 		for (var snake : snakes) {
 			var pos = snake.getHeadPos();
 
-			if (entity.getCenter().squaredDistanceTo(pos) < minSquaredDistance) {
-				positions.add(entity.getEntityPos());
+			if (entity.getCenter().distanceToSqr(pos) < minSquaredDistance) {
+				positions.add(entity.position());
 				entity.remove(Entity.RemovalReason.DISCARDED);
 				snake.grow();
 
-				world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ENTITY_PLAYER_BURP, SoundCategory.PLAYERS, 1.0f, random.nextFloat() * 0.1f + 0.9f);
+				world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 1.0f, random.nextFloat() * 0.1f + 0.9f);
 
 				return true;
 			}
@@ -99,14 +99,14 @@ public class FoodManager {
 		return false;
 	}
 
-	private SnakeFoodEntity spawnFood(Vec3d pos) {
+	private SnakeFoodEntity spawnFood(Vec3 pos) {
 		var entity = SnakeFoodEntity.create(world);
-		entity.setPosition(pos);
+		entity.setPos(pos);
 		var yaw = random.nextFloat() * 360f;
-		entity.setYaw(yaw);
-		entity.setHeadYaw(yaw);
-		entity.setBodyYaw(yaw);
-		world.spawnEntity(entity);
+		entity.setYRot(yaw);
+		entity.setYHeadRot(yaw);
+		entity.setYBodyRot(yaw);
+		world.addFreshEntity(entity);
 		return entity;
 	}
 }

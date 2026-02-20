@@ -1,6 +1,6 @@
 package net.puffish.snakemod.game.phase;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 import net.puffish.snakemod.game.map.SnakeMap;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
@@ -8,10 +8,10 @@ import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 
 public abstract class SnakePhase {
 	protected final GameSpace gameSpace;
-	protected final ServerWorld world;
+	protected final ServerLevel world;
 	protected final SnakeMap map;
 
-	protected SnakePhase(GameSpace gameSpace, ServerWorld world, SnakeMap map) {
+	protected SnakePhase(GameSpace gameSpace, ServerLevel world, SnakeMap map) {
 		this.gameSpace = gameSpace;
 		this.world = world;
 		this.map = map;

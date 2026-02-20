@@ -2,9 +2,9 @@ package net.puffish.snakemod;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.puffish.snakemod.config.SnakeConfig;
 import net.puffish.snakemod.event.SnakeEvents;
@@ -37,10 +37,10 @@ public class SnakeMod implements ModInitializer {
 	}
 
 	public static Identifier createIdentifier(String path) {
-		return Identifier.of(ID, path);
+		return Identifier.fromNamespaceAndPath(ID, path);
 	}
 
-	public static MutableText createTranslatable(String type, String path, Object... args) {
-		return Text.translatable(Util.createTranslationKey(type, createIdentifier(path)), args);
+	public static MutableComponent createTranslatable(String type, String path, Object... args) {
+		return Component.translatable(Util.makeDescriptionId(type, createIdentifier(path)), args);
 	}
 }

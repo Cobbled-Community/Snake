@@ -1,8 +1,8 @@
 package net.puffish.snakemod.game.phase;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.puffish.snakemod.SnakeMod;
 import net.puffish.snakemod.game.FoodManager;
 import net.puffish.snakemod.game.ScoreboardManager;
@@ -15,7 +15,7 @@ import xyz.nucleoid.plasmid.api.game.GameSpace;
 public class SnakeEndingPhase extends SnakeActivePhase {
 	private int countdown = 5 * 20;
 
-	protected SnakeEndingPhase(GameSpace gameSpace, ServerWorld world, SnakeMap map, SnakeManager snakeManager, FoodManager foodManager, ScoreboardManager scoreboardManager) {
+	protected SnakeEndingPhase(GameSpace gameSpace, ServerLevel world, SnakeMap map, SnakeManager snakeManager, FoodManager foodManager, ScoreboardManager scoreboardManager) {
 		super(gameSpace, world, map, snakeManager, foodManager, scoreboardManager);
 	}
 
@@ -47,8 +47,8 @@ public class SnakeEndingPhase extends SnakeActivePhase {
 						SnakeMod.createTranslatable(
 								"text",
 								"won",
-								Text.empty().formatted(Formatting.WHITE).append(winner.getPlayer().getDisplayName())
-						).formatted(Formatting.BLUE)
+								Component.empty().withStyle(ChatFormatting.WHITE).append(winner.getPlayer().getDisplayName())
+						).withStyle(ChatFormatting.BLUE)
 				));
 	}
 

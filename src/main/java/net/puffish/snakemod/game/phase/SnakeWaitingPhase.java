@@ -1,11 +1,11 @@
 package net.puffish.snakemod.game.phase;
 
 import com.mojang.datafixers.util.Either;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
 import net.puffish.snakemod.config.SnakeConfig;
 import net.puffish.snakemod.game.map.SnakeMap;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
@@ -29,7 +29,7 @@ import java.util.Random;
 public class SnakeWaitingPhase extends SnakePhase {
 	private final Random random = new Random();
 
-	protected SnakeWaitingPhase(GameSpace gameSpace, ServerWorld world, SnakeMap map) {
+	protected SnakeWaitingPhase(GameSpace gameSpace, ServerLevel world, SnakeMap map) {
 		super(gameSpace, world, map);
 	}
 
@@ -58,7 +58,7 @@ public class SnakeWaitingPhase extends SnakePhase {
 
 	public static GameOpenProcedure open(GameOpenContext<SnakeConfig> context) {
 		return tryOpen(context)
-				.mapRight(e -> new GameOpenException(Text.literal(e.getMessage()), e))
+				.mapRight(e -> new GameOpenException(Component.literal(e.getMessage()), e))
 				.orThrow();
 	}
 
@@ -88,19 +88,19 @@ public class SnakeWaitingPhase extends SnakePhase {
 		return acceptor.teleport(
 				this.world,
 				getRandomWaitingSpawn()
-		).thenRunForEach(player -> player.changeGameMode(GameMode.ADVENTURE));
+		).thenRunForEach(player -> player.setGameMode(GameType.ADVENTURE));
 	}
 
 	private void tick() {
 		gameSpace.getPlayers().forEach(player -> {
-			if(!map.getBounds().contains(BlockPos.ofFloored(player.getEntityPos()))){
-				Vec3d pos = getRandomWaitingSpawn();
-				player.teleport(pos.x, pos.y, pos.z, false);
+			if(!map.getBounds().contains(BlockPos.containing(player.position()))){
+				Vec3 pos = getRandomWaitingSpawn();
+				player.randomTeleport(pos.x, pos.y, pos.z, false);
 			}
 		});
 	}
 
-	private Vec3d getRandomWaitingSpawn(){
+	private Vec3 getRandomWaitingSpawn(){
 		return map.getWaitingSpawns().get(random.nextInt(map.getWaitingSpawns().size()));
 	}
 }
